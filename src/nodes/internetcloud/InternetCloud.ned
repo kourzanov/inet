@@ -39,7 +39,7 @@ import inet.util.PcapRecorder;
 //
 // This module simulates an internet cloud (for IPv4).
 // This module similar to NodeBase. Changes:
-//   - NetworkLayer replaced to InternetCloudNetworkLayer,
+//   - IPv4NetworkLayer replaced to InternetCloudNetworkLayer,
 //   - mobility module removed,
 //   - removed wlan, eth and ext interfaces,
 //   - idealchannels from interfaces to IP layer replaced to InternetCloudTaggerChannel.

@@ -26,7 +26,7 @@ import inet.networklayer.internetcloud.ICloudDelayer;
 //
 // Calculates delay for incoming packets based on src and dest interfaces
 // and send packet with calculated delay. The src info was set by TaggerChannel
-// between INICs and NetworkLayer.
+// between INICs and IPv4NetworkLayer.
 // Should use TaggerChannel for connect interfaces for network layer.
 //
 // @see InternetCloudNetwokLayer, InternetCloud, InternetCloudNetworkConfigurator
