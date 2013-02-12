@@ -45,7 +45,6 @@ class Uint128
 
     //inline Uint128 (const unsigned __int64 & a, const unsigned __int64 & b)
 //            : lo (a), hi (b) {}
-    inline Uint128(const uint64_t& a, const uint64_t& b)  {lo = a; hi = b;}
   protected:
     // Some global operator functions must be friends
     friend bool operator<(const Uint128&, const Uint128&);
@@ -96,6 +95,9 @@ class Uint128
     Uint128(const uint32_t& a) : lo(a), hi(0) {}
     Uint128(const int64_t& a) : lo(a), hi(0) {}
     Uint128(const uint64_t& a) : lo(a), hi(0) {}
+
+    inline Uint128(const uint64_t& a, const uint64_t& b)  {lo = a; hi = b;}
+    Uint128(const uint32_t& a, const uint32_t& b, const uint32_t& c, const uint32_t& d) : lo(((uint64_t)a << 32) + b), hi(((uint64_t)c << 32) + d) {}
 
     Uint128(const float a);
     Uint128(const double& a);
