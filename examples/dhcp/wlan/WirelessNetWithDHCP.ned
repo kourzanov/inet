@@ -38,11 +38,11 @@ network WirelessNetWithDHCP
         }
         router: Router {
             @display("p=241,136");
-            routingFile = "router.rt";
+            routingTable.routingFile = "router.rt";
         }
         standardHost: StandardHost {
             @display("p=418,134");
-            routingFile = "host.rt";
+            routingTable.routingFile = "host.rt";
         }
         wirelessHost[numWirelessHosts]: WirelessHost {
             //@display("p=135,333");
@@ -52,7 +52,7 @@ network WirelessNetWithDHCP
 
         wirelessRouter: WirelessHost {
             @display("p=154,207");
-            routingFile = "wirelessRouter.rt";
+            routingTable.routingFile = "wirelessRouter.rt";
             numUdpApps = 1;
             udpApp[0].typename = "DHCPServer";
             wlan[0].mgmtType = default("Ieee80211MgmtAP");
