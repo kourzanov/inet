@@ -96,8 +96,8 @@ class Uint128
     Uint128(const int64_t& a) : lo(a), hi(0) {}
     Uint128(const uint64_t& a) : lo(a), hi(0) {}
 
-    inline Uint128(const uint64_t& a, const uint64_t& b)  {lo = a; hi = b;}
-    Uint128(const uint32_t& a, const uint32_t& b, const uint32_t& c, const uint32_t& d) : lo(((uint64_t)a << 32) + b), hi(((uint64_t)c << 32) + d) {}
+    inline Uint128(const uint64_t& lo, const uint64_t& hi) : lo(lo), hi(hi) {}
+    Uint128(uint32_t w3, uint32_t w2, uint32_t w1, uint32_t w0) : lo(((uint64_t)w1 << 32) + w0), hi(((uint64_t)w3 << 32) + w2) {}
 
     Uint128(const float a);
     Uint128(const double& a);
