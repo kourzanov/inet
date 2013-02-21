@@ -27,7 +27,7 @@
 #include "ModuleIdAddress.h"
 #include "ModulePathAddress.h"
 
-class IAddressPolicy;
+class IAddressType;
 
 /**
  * TODO
@@ -74,7 +74,7 @@ class INET_API Address
 
         std::string str() const;
         AddressType getType() const;
-        IAddressPolicy * getAddressPolicy() const;
+        IAddressType * getAddressType() const;
 
         bool tryParse(const char *addr);
 
