@@ -62,7 +62,6 @@ void InterfaceStatus::setStatusByName(const char * name)
 
 void InterfaceStatus::updateDisplayString()
 {
-
     const char * icon;
     switch (status) {
         case INTERFACE_UP:

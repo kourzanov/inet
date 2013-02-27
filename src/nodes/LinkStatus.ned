@@ -21,4 +21,5 @@ simple LinkStatus
 {
     parameters:
         bool updateLink = default(true);
+        @display("i=block/process;is=s");
 }

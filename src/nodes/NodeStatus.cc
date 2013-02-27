@@ -63,7 +63,6 @@ void NodeStatus::setStatusByName(const char * name)
 
 void NodeStatus::updateDisplayString()
 {
-
     const char * icon;
     switch (status) {
         case NODE_ON:
