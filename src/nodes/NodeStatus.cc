@@ -20,26 +20,16 @@
 
 Define_Module(NodeStatus)
 
-simsignal_t NodeStatus::nodeStatusSignal = SIMSIGNAL_NULL;
+simsignal_t NodeStatusData::nodeStatusSignal = SIMSIGNAL_NULL;
 
-void NodeStatus::initialize(int stage)
-{
-    if (stage == 0) {
-        updateNode = par("updateNode");
-        nodeStatusSignal = registerSignal("nodeStatusChanged");
-        node = findContainingNode(this);
-        setStatus(NODE_ON);
-    }
-}
-
-void NodeStatus::setStatus(Status status)
+void NodeStatusData::setStatus(Status status)
 {
     this->status = status;
     updateDisplayString();
     signalStatus();
 }
 
-const char * NodeStatus::getStatusByName() const
+const char * NodeStatusData::getStatusByName() const
 {
     switch (status) {
         case NODE_ON:
@@ -51,7 +41,7 @@ const char * NodeStatus::getStatusByName() const
     }
 }
 
-void NodeStatus::setStatusByName(const char * name)
+void NodeStatusData::setStatusByName(const char * name)
 {
     if (!strcmp(name, "on"))
         setStatus(NODE_ON);
@@ -61,7 +51,7 @@ void NodeStatus::setStatusByName(const char * name)
         throw cRuntimeError("Unknown status");
 }
 
-void NodeStatus::updateDisplayString()
+void NodeStatusData::updateDisplayString()
 {
     const char * icon;
     switch (status) {
@@ -74,12 +64,24 @@ void NodeStatus::updateDisplayString()
         default:
             throw cRuntimeError("Unknown status");
     }
-    getDisplayString().setTagArg("i", 0, icon);
-    if (updateNode)
+    if (module)
+        module->getDisplayString().setTagArg("i", 0, icon);
+    if (node)
         node->getDisplayString().setTagArg("i2", 0, icon);
 }
 
-void NodeStatus::signalStatus()
+void NodeStatusData::signalStatus()
 {
-    emit(nodeStatusSignal, this);
+    if (module)
+        module->emit(nodeStatusSignal, module);
+}
+
+void NodeStatus::initialize(int stage)
+{
+    if (stage == 0) {
+        module = this;
+        node = par("updateNode") ? findContainingNode(this) : NULL;
+        nodeStatusSignal = registerSignal("nodeStatusChanged");
+        setStatus(NODE_ON);
+    }
 }

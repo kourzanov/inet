@@ -21,25 +21,29 @@
 #include "INETDefs.h"
 #include "IStatus.h"
 
-class INET_API InterfaceStatus : public cSimpleModule, public IStatus {
+class INET_API InterfaceStatusData : public IStatus
+{
   public:
     enum Status {
-        INTERFACE_UP,
-        INTERFACE_DOWN
+      INTERFACE_UP,
+      INTERFACE_DOWN
     };
 
-    static simsignal_t interfaceStatusSignal;
+    static simsignal_t interfaceStatusSignal; // the signal used to notify listeners about status changes
 
-  private:
-    bool updateInterface;
-    Status status;
-    cModule * interface;
+  protected:
+    Status status;       // the actual status
+    cModule * module;    // the module representing this status or NULL if there's no such module
+    cModule * interface; // the network interface belonging to this status of NULL if there's no such interface
 
   public:
-    InterfaceStatus() { }
-    virtual ~InterfaceStatus() { }
+    InterfaceStatusData() : status(INTERFACE_UP), module(NULL), interface(NULL) { }
+    virtual ~InterfaceStatusData() {}
 
-    static Status getStatusWithDefault(InterfaceStatus * interfaceStatus, Status defaultValue = INTERFACE_UP) { return interfaceStatus ? interfaceStatus->getStatus() : defaultValue; }
+    static Status getStatusWithDefault(InterfaceStatusData * interfaceStatusData, Status defaultValue = INTERFACE_UP) {
+        return interfaceStatusData ? interfaceStatusData->getStatus() : defaultValue;
+    }
+
     Status getStatus() const { return status; }
     void setStatus(Status status);
 
@@ -47,12 +51,19 @@ class INET_API InterfaceStatus : public cSimpleModule, public IStatus {
     virtual void setStatusByName(const char * name);
 
   protected:
-    void initialize(int stage);
-    void handleMessage(cMessage * message) { throw cRuntimeError("This module doesn't handle messages"); }
-
-  private:
     void updateDisplayString();
     void signalStatus();
+};
+
+class INET_API InterfaceStatus : public cSimpleModule, public InterfaceStatusData
+{
+  public:
+    InterfaceStatus() { }
+    virtual ~InterfaceStatus() { }
+
+  protected:
+    void initialize(int stage);
+    void handleMessage(cMessage * message) { throw cRuntimeError("This module doesn't handle messages"); }
 };
 
 #endif

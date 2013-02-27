@@ -19,26 +19,16 @@
 
 Define_Module(InterfaceStatus)
 
-simsignal_t InterfaceStatus::interfaceStatusSignal = SIMSIGNAL_NULL;
+simsignal_t InterfaceStatusData::interfaceStatusSignal = SIMSIGNAL_NULL;
 
-void InterfaceStatus::initialize(int stage)
-{
-    if (stage == 0) {
-        updateInterface = par("updateInterface");
-        interfaceStatusSignal = registerSignal("interfaceStatusChanged");
-        interface = getParentModule();
-        setStatus(INTERFACE_UP);
-    }
-}
-
-void InterfaceStatus::setStatus(Status status)
+void InterfaceStatusData::setStatus(Status status)
 {
     this->status = status;
     updateDisplayString();
     signalStatus();
 }
 
-const char * InterfaceStatus::getStatusByName() const
+const char * InterfaceStatusData::getStatusByName() const
 {
     switch (status) {
         case INTERFACE_UP:
@@ -50,7 +40,7 @@ const char * InterfaceStatus::getStatusByName() const
     }
 }
 
-void InterfaceStatus::setStatusByName(const char * name)
+void InterfaceStatusData::setStatusByName(const char * name)
 {
     if (!strcmp(name, "up"))
         setStatus(INTERFACE_UP);
@@ -60,7 +50,7 @@ void InterfaceStatus::setStatusByName(const char * name)
         throw cRuntimeError("Unknown status");
 }
 
-void InterfaceStatus::updateDisplayString()
+void InterfaceStatusData::updateDisplayString()
 {
     const char * icon;
     switch (status) {
@@ -73,12 +63,24 @@ void InterfaceStatus::updateDisplayString()
         default:
             throw cRuntimeError("Unknown status");
     }
-    getDisplayString().setTagArg("i", 0, icon);
-    if (updateInterface)
+    if (module)
+        module->getDisplayString().setTagArg("i", 0, icon);
+    if (interface)
         interface->getDisplayString().setTagArg("i2", 0, icon);
 }
 
-void InterfaceStatus::signalStatus()
+void InterfaceStatusData::signalStatus()
 {
-    emit(interfaceStatusSignal, this);
+    if (module)
+        module->emit(interfaceStatusSignal, module);
+}
+
+void InterfaceStatus::initialize(int stage)
+{
+    if (stage == 0) {
+        module = this;
+        interface = par("updateInterface") ? getParentModule() : NULL;
+        interfaceStatusSignal = registerSignal("interfaceStatusChanged");
+        setStatus(INTERFACE_UP);
+    }
 }

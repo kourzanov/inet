@@ -19,26 +19,16 @@
 
 Define_Module(LinkStatus)
 
-simsignal_t LinkStatus::linkStatusSignal = SIMSIGNAL_NULL;
+simsignal_t LinkStatusData::linkStatusSignal = SIMSIGNAL_NULL;
 
-void LinkStatus::initialize(int stage)
-{
-    if (stage == 0) {
-        updateLink = par("updateLink");
-        linkStatusSignal = registerSignal("linkStatusChanged");
-        link = NULL;
-        setStatus(LINK_PLUGGED);
-    }
-}
-
-void LinkStatus::setStatus(Status status)
+void LinkStatusData::setStatus(Status status)
 {
     this->status = status;
     updateDisplayString();
     signalStatus();
 }
 
-const char * LinkStatus::getStatusByName() const
+const char * LinkStatusData::getStatusByName() const
 {
     switch (status) {
         case LINK_PLUGGED:
@@ -50,7 +40,7 @@ const char * LinkStatus::getStatusByName() const
     }
 }
 
-void LinkStatus::setStatusByName(const char * name)
+void LinkStatusData::setStatusByName(const char * name)
 {
     if (!strcmp(name, "on"))
         setStatus(LINK_PLUGGED);
@@ -60,7 +50,7 @@ void LinkStatus::setStatusByName(const char * name)
         throw cRuntimeError("Unknown status");
 }
 
-void LinkStatus::updateDisplayString()
+void LinkStatusData::updateDisplayString()
 {
     const char * icon;
     switch (status) {
@@ -73,12 +63,24 @@ void LinkStatus::updateDisplayString()
         default:
             throw cRuntimeError("Unknown status");
     }
-    getDisplayString().setTagArg("i", 0, icon);
-    if (updateLink)
+    if (module)
+        module->getDisplayString().setTagArg("i", 0, icon);
+    if (link)
         link->getDisplayString().setTagArg("i2", 0, icon);
 }
 
-void LinkStatus::signalStatus()
+void LinkStatusData::signalStatus()
 {
-    emit(linkStatusSignal, this);
+    if (module)
+        module->emit(linkStatusSignal, module);
+}
+
+void LinkStatus::initialize(int stage)
+{
+    if (stage == 0) {
+        module = this;
+        link = NULL; // TODO: par("updateLink") ? NULL : NULL;
+        linkStatusSignal = registerSignal("linkStatusChanged");
+        setStatus(LINK_PLUGGED);
+    }
 }

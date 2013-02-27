@@ -21,25 +21,29 @@
 #include "INETDefs.h"
 #include "IStatus.h"
 
-class INET_API NodeStatus : public cSimpleModule, public IStatus {
+class INET_API NodeStatusData : public IStatus
+{
   public:
     enum Status {
-        NODE_ON,
-        NODE_OFF
+      NODE_ON,
+      NODE_OFF
     };
 
-    static simsignal_t nodeStatusSignal;
+    static simsignal_t nodeStatusSignal; // the signal used to notify listeners about status changes
 
-  private:
-    bool updateNode;
-    Status status;
-    cModule * node;
+  protected:
+    Status status;    // the actual status
+    cModule * module; // the module representing this status or NULL if there's no such module
+    cModule * node;   // the network node belonging to this status of NULL if there's no such node
 
   public:
-    NodeStatus() { }
-    virtual ~NodeStatus() { }
+    NodeStatusData() : status(NODE_ON), module(NULL), node(NULL) { }
+    virtual ~NodeStatusData() { }
 
-    static Status getStatusWithDefault(NodeStatus * nodeStatus, Status defaultValue = NODE_ON) { return nodeStatus ? nodeStatus->getStatus() : defaultValue; }
+    static Status getStatusWithDefault(NodeStatusData * nodeStatusData, Status defaultValue = NODE_ON) {
+        return nodeStatusData ? nodeStatusData->getStatus() : defaultValue;
+    }
+
     Status getStatus() const { return status; }
     void setStatus(Status status);
 
@@ -47,12 +51,19 @@ class INET_API NodeStatus : public cSimpleModule, public IStatus {
     virtual void setStatusByName(const char * name);
 
   protected:
-    void initialize(int stage);
-    void handleMessage(cMessage * message) { throw cRuntimeError("This module doesn't handle messages"); }
-
-  private:
     void updateDisplayString();
     void signalStatus();
+};
+
+class INET_API NodeStatus : public cSimpleModule, public NodeStatusData
+{
+  public:
+    NodeStatus() { }
+    virtual ~NodeStatus() { }
+
+  protected:
+    void initialize(int stage);
+    void handleMessage(cMessage * message) { throw cRuntimeError("This module doesn't handle messages"); }
 };
 
 #endif

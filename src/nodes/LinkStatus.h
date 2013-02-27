@@ -19,39 +19,51 @@
 #define __INET_LINKSTATUS_H_
 
 #include "INETDefs.h"
+#include "IStatus.h"
 
-class INET_API LinkStatus : public cSimpleModule {
+class INET_API LinkStatusData : public IStatus
+{
   public:
     enum Status {
-        LINK_PLUGGED,
-        LINK_UNPLUGGED
+      LINK_PLUGGED,
+      LINK_UNPLUGGED
     };
 
-    static simsignal_t linkStatusSignal;
+    static simsignal_t linkStatusSignal; // the signal used to notify listeners about status changes
 
-  private:
-    bool updateLink;
-    Status status;
-    cChannel * link;
+  protected:
+    Status status;    // the actual status
+    cModule * module; // the module representing this status or NULL if there's no such module
+    cChannel * link;  // the network link belonging to this status of NULL if there's no such link
 
   public:
-    LinkStatus() { }
-    virtual ~LinkStatus() { }
+    LinkStatusData() : status(LINK_PLUGGED), module(NULL), link(NULL) { }
+    virtual ~LinkStatusData() { }
 
-    static Status getStatusWithDefault(LinkStatus * linkStatus, Status defaultValue = LINK_PLUGGED) { return linkStatus ? linkStatus->getStatus() : defaultValue; }
+    static Status getStatusWithDefault(LinkStatusData * linkStatusData, Status defaultValue = LINK_PLUGGED) {
+        return linkStatusData ? linkStatusData->getStatus() : defaultValue;
+    }
+
     Status getStatus() const { return status; }
     void setStatus(Status status);
 
     virtual const char * getStatusByName() const;
     virtual void setStatusByName(const char * name);
 
-  private:
-    void initialize(int stage);
-    void handleMessage(cMessage * message) { throw cRuntimeError("This module doesn't handle messages"); }
-
-  private:
+  protected:
     void updateDisplayString();
     void signalStatus();
+};
+
+class INET_API LinkStatus : public cSimpleModule, public LinkStatusData
+{
+  public:
+    LinkStatus() { }
+    virtual ~LinkStatus() { }
+
+  protected:
+    void initialize(int stage);
+    void handleMessage(cMessage * message) { throw cRuntimeError("This module doesn't handle messages"); }
 };
 
 #endif
