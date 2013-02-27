@@ -28,7 +28,8 @@
 #include "ObstacleControl.h"
 #include "IPowerControl.h"
 #include "INoiseGenerator.h"
-
+#include "NodeStatus.h"
+#include "InterfaceStatus.h"
 
 /**
  * Abstract base class for radio modules. Radio modules deal with the
@@ -162,6 +163,8 @@ class INET_API Radio : public ChannelAccess, public IPowerControl
     static simsignal_t changeLevelNoise;
     virtual void receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj);
 
+    NodeStatus *nodeStatus;
+    InterfaceStatus *interfaceStatus;
     INoiseGenerator *noiseGenerator;
     cMessage *updateString;
     simtime_t updateStringInterval;

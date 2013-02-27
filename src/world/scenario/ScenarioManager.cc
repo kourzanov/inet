@@ -16,6 +16,7 @@
 //
 
 #include "ScenarioManager.h"
+#include "IStatus.h"
 
 Define_Module(ScenarioManager);
 
@@ -70,11 +71,13 @@ void ScenarioManager::processCommand(cXMLElement *node)
         processSetParamCommand(node);
     else if (!strcmp(tag, "set-channel-attr"))
         processSetChannelAttrCommand(node);
+    else if (!strcmp(tag, "set-status"))
+        processSetStatusCommand(node);
     // else if (!strcmp(tag,"create-module"))
     //    processCreateModuleCommand(node);
-     else if (!strcmp(tag, "connect"))
+    else if (!strcmp(tag, "connect"))
         processConnectCommand(node);
-     else if (!strcmp(tag, "disconnect"))
+    else if (!strcmp(tag, "disconnect"))
         processDisconnectCommand(node);
     else
         processModuleSpecificCommand(node);
@@ -192,6 +195,13 @@ void ScenarioManager::processSetChannelAttrCommand(cXMLElement *node)
     cPar& param = chan->par(attrAttr);
     param.parse(valueAttr);
 }
+
+void ScenarioManager::processSetStatusCommand(cXMLElement *node)
+{
+    IStatus * status = check_and_cast<IStatus *>(getRequiredModule(node, "module")->getSubmodule("status"));
+    status->setStatusByName(getRequiredAttribute(node, "status"));
+}
+
 
 void ScenarioManager::processCreateModuleCommand(cXMLElement *node)
 {

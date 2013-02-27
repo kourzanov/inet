@@ -58,37 +58,34 @@ module NodeBase
         inout pppg[] @labels(PPPFrame-conn);
         inout ethg[] @labels(EtherFrame-conn);
     submodules:
-        notificationBoard: NotificationBoard {
-            parameters:
-                @display("p=53,155;is=s");
-        }
-
-        // optional mobility module. Required only if wireless cards are present
         mobility: <mobilityType> like IMobility if mobilityType != "" {
             parameters:
-                @display("p=53,111");
+                @display("p=50,100");
         }
 
-        // network layer
+        notificationBoard: NotificationBoard {
+            parameters:
+                @display("p=50,150;is=s");
+        }
+
         networkLayer: <networkLayerType> like INetworkLayer {
             parameters:
                 @display("p=329,287;q=queue");
         }
 
-		// routing table
         routingTable: <routingTableType> like IRoutingTable {
             parameters:
-                @display("p=53,225;is=s");
+                @display("p=50,200;is=s");
         }
 
-        // linklayer
         interfaceTable: InterfaceTable {
             parameters:
-                @display("p=53,287;is=s");
+                @display("p=50,250;is=s");
         }
 
         pcapRecorder[numPcapRecorders]: PcapRecorder {
-            @display("p=53,338,r,10");
+            parameters:
+	            @display("p=50,300,r,10");
         }
 
         wlan[numRadios]: <default("Ieee80211Nic")> like IWirelessNic {
@@ -99,10 +96,12 @@ module NodeBase
             parameters:
                 @display("p=329,406,row,60;q=txQueue");
         }
+
         ppp[sizeof(pppg)]: <default("PPPInterface")> like IWiredNic {
             parameters:
                 @display("p=558,406,row,60;q=txQueue");
         }
+
         ext[numExtInterfaces]: <default("ExtInterface")> like IExternalNic {
             parameters:
                 @display("p=45,406,row,10;q=txQueue;i=block/ifcard");

@@ -57,6 +57,7 @@ class INET_API ScenarioManager : public cSimpleModule
     virtual void processAtCommand(cXMLElement *node);
     virtual void processSetParamCommand(cXMLElement *node);
     virtual void processSetChannelAttrCommand(cXMLElement *node);
+    virtual void processSetStatusCommand(cXMLElement *node);
     virtual void processCreateModuleCommand(cXMLElement *node);
     virtual void processDeleteModuleCommand(cXMLElement *node);
     virtual void processConnectCommand(cXMLElement *node);

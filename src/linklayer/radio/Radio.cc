@@ -26,7 +26,6 @@
 #include "Radio80211aControlInfo_m.h"
 #include "BasicBattery.h"
 
-
 #define MK_TRANSMISSION_OVER  1
 #define MK_RECEPTION_COMPLETE 2
 
@@ -154,6 +153,16 @@ void Radio::initialize(int stage)
         // subscribe in stage 0
         nb->fireChangeNotification(NF_RADIOSTATE_CHANGED, &rs);
         nb->fireChangeNotification(NF_RADIO_CHANNEL_CHANGED, &rs);
+
+        cModule * node = findContainingNode(this);
+        nodeStatus = dynamic_cast<NodeStatus *>(node->getSubmodule("status"));
+        if (nodeStatus)
+            nodeStatus->subscribe(NodeStatus::nodeStatusSignal, this);
+
+        cModule * interface = getParentModule();
+        interfaceStatus = dynamic_cast<InterfaceStatus *>(interface->getSubmodule("status"));
+        if (interfaceStatus)
+            interfaceStatus->subscribe(InterfaceStatus::interfaceStatusSignal, this);
     }
     else if (stage == 2)
     {
@@ -212,6 +221,17 @@ bool Radio::processAirFrame(AirFrame *airframe)
  */
 void Radio::handleMessage(cMessage *msg)
 {
+    if (NodeStatus::getStatusWithDefault(nodeStatus) == NodeStatus::NODE_OFF ||
+        InterfaceStatus::getStatusWithDefault(interfaceStatus) == InterfaceStatus::INTERFACE_DOWN)
+    {
+        if (msg->getArrivalGateId() == upperLayerIn || msg->isSelfMessage())
+            throw cRuntimeError("Radio is turned off");
+        else {
+            EV << "radio is turned off, dropping packet\n";
+            delete msg;
+            return;
+        }
+    }
     // handle commands
     if (updateString && updateString==msg)
     {
@@ -999,6 +1019,36 @@ void Radio::receiveSignal(cComponent *source, simsignal_t signalID, cObject *obj
         {
             if (rs.getState()!=RadioState::IDLE)
                 setRadioState(RadioState::RECV);
+        }
+    }
+    else if (signalID == NodeStatus::nodeStatusSignal)
+    {
+        switch (nodeStatus->getStatus()) {
+            case NodeStatus::NODE_ON:
+                connectReceiver();
+                connectTransceiver();
+                break;
+            case NodeStatus::NODE_OFF:
+                disconnectReceiver();
+                disconnectTransceiver();
+                break;
+            default:
+                throw cRuntimeError("Unknown node status");
+        }
+    }
+    else if (signalID == InterfaceStatus::interfaceStatusSignal)
+    {
+        switch (interfaceStatus->getStatus()) {
+            case InterfaceStatus::INTERFACE_UP:
+                connectReceiver();
+                connectTransceiver();
+                break;
+            case InterfaceStatus::INTERFACE_DOWN:
+                disconnectReceiver();
+                disconnectTransceiver();
+                break;
+            default:
+                throw cRuntimeError("Unknown interface status");
         }
     }
 }
